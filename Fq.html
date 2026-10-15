@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>U, H, S, A y G en isométrico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EAEEF3; --card:#F7F9FB; --ink:#17203D; --ink2:#4A5372; --line:#C5CDD9; --grid:rgba(23,32,61,.06);
+  --floor:#D3DAE4; --u:#2F6DB5; --pv:#C98F0E; --ts:#A8346F; --heat:#D9532A; --gas:#5FA8D3; --ok:#2B8A57; --bad:#C0392B;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Serif 4", Georgia, "Times New Roman", serif;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#10151F; --card:#171E2C; --ink:#E5E9F2; --ink2:#9AA5BE; --line:#2B3549; --grid:rgba(229,233,242,.05);
+    --floor:#222B3C; --u:#5A97DE; --pv:#E5AE35; --ts:#D466A2; --heat:#EE7A4E; --gas:#7DBFE6; --ok:#4CC08A; --bad:#EF6B5B;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#10151F; --card:#171E2C; --ink:#E5E9F2; --ink2:#9AA5BE; --line:#2B3549; --grid:rgba(229,233,242,.05);
+  --floor:#222B3C; --u:#5A97DE; --pv:#E5AE35; --ts:#D466A2; --heat:#EE7A4E; --gas:#7DBFE6; --ok:#4CC08A; --bad:#EF6B5B;
+  color-scheme: dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{
+  margin:0; background:var(--paper); color:var(--ink); font-family:var(--body); font-size:17px; line-height:1.6;
+  background-image:
+    repeating-linear-gradient(30deg, var(--grid) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(150deg, var(--grid) 0 1px, transparent 1px 26px);
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.wrap{max-width:860px;margin:0 auto;padding:0 18px 60px}
+header.hero{padding:28px 0 6px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,7vw,52px);line-height:1.02;letter-spacing:-.02em;margin:0 0 10px}
+h1 .sym{display:inline-block;padding:0 .08em}
+h1 .sU{color:var(--u)} h1 .sH{color:var(--pv)} h1 .sA,h1 .sG{color:var(--ink)} h1 .sS{color:var(--ts)}
+.lede{color:var(--ink2);max-width:60ch;margin:0}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);margin:18px -18px 0;padding:10px 18px;border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab{font-family:var(--display);font-weight:700;font-size:15px;border:1.5px solid var(--line);background:transparent;color:var(--ink2);padding:7px 14px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.tab:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--pv);outline-offset:2px}
+h2{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:-.01em;margin:28px 0 6px}
+h3{font-family:var(--display);font-weight:700;font-size:19px;margin:18px 0 4px}
+p{margin:.5em 0}
+.muted{color:var(--ink2)}
+.stage{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px;margin:14px 0;overflow-x:auto}
+.stage svg{display:block;width:100%;height:auto;max-width:100%}
+.grid2{display:grid;grid-template-columns:1fr;gap:14px}
+@media (min-width:760px){.grid2{grid-template-columns:1.15fr .85fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--accent,var(--ink));border-radius:6px 14px 14px 6px;padding:14px 16px}
+.panel h3{margin-top:0}
+.ctrl{display:grid;grid-template-columns:7.5em 1fr 4.2em;align-items:center;gap:8px;margin:6px 0;font-size:15px}
+.ctrl label{font-family:var(--display);font-weight:500}
+.ctrl output{font-variant-numeric:tabular-nums;text-align:right;color:var(--ink2)}
+input[type=range]{width:100%;accent-color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{font-family:var(--display);font-weight:500;font-size:14px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:6px 12px;border-radius:10px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.btn{font-family:var(--display);font-weight:700;font-size:15px;border:0;background:var(--ink);color:var(--paper);padding:9px 16px;border-radius:10px;cursor:pointer}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+.eq{font-family:var(--body);font-size:18px;background:color-mix(in srgb,var(--ink) 6%,transparent);padding:6px 10px;border-radius:8px;display:inline-block;margin:3px 0;overflow-x:auto;max-width:100%}
+.eq i{font-style:italic}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:15.5px}
+.kv dt{font-family:var(--display);font-weight:700;color:var(--ink2)}
+.kv dd{margin:0}
+.note{font-size:15px;border:1.5px dashed var(--ts);border-radius:12px;padding:10px 14px;margin:14px 0}
+.note b{font-family:var(--display)}
+.predict{font-size:15.5px;border-left:3px solid var(--pv);padding:4px 0 4px 12px;margin:10px 0}
+.step{border-top:1px solid var(--line);padding:10px 0}
+.step .q{font-weight:600}
+.step .a{animation:reveal .35s ease-out}
+@keyframes reveal{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.bars .row{display:grid;grid-template-columns:7.2em 1fr 6.6em;align-items:center;gap:8px;font-size:15px;margin:6px 0}
+.bars .track{position:relative;height:16px;background:color-mix(in srgb,var(--ink) 7%,transparent);border-radius:4px}
+.bars .zero{position:absolute;left:50%;top:-3px;bottom:-3px;width:1.5px;background:var(--ink2)}
+.bars .fill{position:absolute;top:0;bottom:0;border-radius:3px;transition:all .5s cubic-bezier(.2,.8,.2,1)}
+.bars output{text-align:right;font-variant-numeric:tabular-nums}
+.cards{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:700px){.cards{grid-template-columns:1fr 1fr}}
+textarea{width:100%;min-height:90px;font-family:var(--body);font-size:16px;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:10px}
+.key{background:color-mix(in srgb,var(--ok) 10%,transparent);border-left:3px solid var(--ok);padding:8px 12px;border-radius:4px;margin-top:8px;font-size:15.5px}
+.clickable{cursor:pointer}
+.clickable:hover .hl{opacity:.18}
+.dash{stroke-dasharray:5 6;animation:flow 0.9s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-22}}
+.jig{animation:jig 1.3s ease-in-out infinite alternate}
+@keyframes jig{0%{transform:translate(0,0)}33%{transform:translate(2px,-1.5px)}66%{transform:translate(-1.5px,1px)}100%{transform:translate(1px,2px)}}
+.bob{animation:bob 2.4s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-7px)}}
+.pulse{animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+svg text{font-family:var(--display)}
+footer{margin-top:40px;font-size:14px;color:var(--ink2);border-top:1px solid var(--line);padding-top:12px}
+@media (prefers-reduced-motion: reduce){
+  .dash,.jig,.bob,.pulse,.step .a{animation:none!important}
+  .bars .fill{transition:none}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js"></script>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, useMemo } = React;
+const REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- proyección isométrica ---------- */
+const C30 = Math.cos(Math.PI / 6);
+const iso = (x, y, z) => [(x - y) * C30, (x + y) * 0.5 - z];
+const pts = (arr) => arr.map(p => iso(p[0], p[1], p[2]).map(n => n.toFixed(1)).join(',')).join(' ');
+
+function useTween(target, ms = 320) {
+  const [v, setV] = useState(target);
+  const cur = useRef(target);
+  useEffect(() => {
+    if (REDUCED || ms === 0) { cur.current = target; setV(target); return; }
+    const from = cur.current, t0 = performance.now(); let raf;
+    const step = (t) => {
+      const p = Math.min(1, (t - t0) / ms); const e = 1 - Math.pow(1 - p, 3);
+      const val = from + (target - from) * e; cur.current = val; setV(val);
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target]);
+  return v;
+}
+
+function Box({ x, y, z = 0, w, d, h, color, ghost = false, glass = false, onClick, label, opacity = 1 }) {
+  if (h <= 0.05) return null;
+  const top = [[x, y, z + h], [x + w, y, z + h], [x + w, y + d, z + h], [x, y + d, z + h]];
+  const right = [[x + w, y, z], [x + w, y + d, z], [x + w, y + d, z + h], [x + w, y, z + h]];
+  const left = [[x, y + d, z], [x + w, y + d, z], [x + w, y + d, z + h], [x, y + d, z + h]];
+  const props = onClick ? { className: 'clickable', onClick, role: 'button', tabIndex: 0, 'aria-label': label,
+    onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } } : {};
+  if (ghost) {
+    return (
+      <g {...props}>
+        {[left, right, top].map((f, i) => (
+          <polygon key={i} points={pts(f)} fill="url(#hatch)" style={{ stroke: color }} strokeWidth="1.2" strokeDasharray="4 3" />
+        ))}
+      </g>
+    );
+  }
+  if (glass) {
+    return (
+      <g {...props} opacity={opacity}>
+        {[left, right, top].map((f, i) => (
+          <polygon key={i} points={pts(f)} style={{ fill: color, stroke: color }} fillOpacity={0.08 + i * 0.03} strokeOpacity="0.7" strokeWidth="1" />
+        ))}
+      </g>
+    );
+  }
+  return (
+    <g {...props} opacity={opacity}>
+      <polygon points={pts(left)} style={{ fill: color }} />
+      <polygon points={pts(left)} fill="#000" fillOpacity="0.12" />
+      <polygon points={pts(right)} style={{ fill: color }} />
+      <polygon points={pts(right)} fill="#000" fillOpacity="0.30" />
+      <polygon points={pts(top)} style={{ fill: color }} />
+      <polygon points={pts(top)} fill="#fff" fillOpacity="0.16" />
+      <polygon className="hl" points={pts(top)} fill="#fff" opacity="0" />
+    </g>
+  );
+}
+
+function Defs() {
+  return (
+    <defs>
+      <pattern id="hatch" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="5" style={{ stroke: 'var(--ts)' }} strokeWidth="1.6" strokeOpacity="0.55" />
+      </pattern>
+      <pattern id="insul" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(-45)">
+        <line x1="0" y1="0" x2="0" y2="6" style={{ stroke: 'var(--ink2)' }} strokeWidth="1.4" strokeOpacity="0.6" />
+      </pattern>
+      <marker id="arrH" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" style={{ fill: 'var(--heat)' }} />
+      </marker>
+      <marker id="arrI" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" style={{ fill: 'var(--ink)' }} />
+      </marker>
+    </defs>
+  );
+}
+
+const fmt = (n, d = 0) => n.toLocaleString('es-AR', { minimumFractionDigits: d, maximumFractionDigits: d });
+
+/* ---------- 1. Escalera de Legendre ---------- */
+const INFO = {
+  U: {
+    color: 'var(--u)', title: 'Energía interna, U',
+    def: <>Función de estado cuya variación, en un sistema cerrado, es <span className="eq">Δ<i>U</i> = <i>q</i> + <i>w</i></span> (con <i>w</i> = trabajo hecho <em>sobre</em> el sistema). Microscópicamente reúne energías cinéticas y potenciales de interacción de las partículas. Su valor absoluto no se mide: solo sus cambios.</>,
+    nat: <><i>S</i>, <i>V</i></>,
+    diff: <>d<i>U</i> = <i>T</i> d<i>S</i> − <i>P</i> d<i>V</i></>,
+    use: <>A <i>V</i> constante y sin trabajo extra: Δ<i>U</i> = <i>q<sub>V</sub></i> (bomba calorimétrica).</>,
+    trap: <>Escribir d<i>U</i> = <i>C<sub>V</sub></i> d<i>T</i> como si valiera siempre. En general d<i>U</i> = <i>C<sub>V</sub></i> d<i>T</i> + (∂<i>U</i>/∂<i>V</i>)<sub><i>T</i></sub> d<i>V</i>; el segundo término (presión interna) se anula solo para el gas ideal.</>
+  },
+  H: {
+    color: 'var(--pv)', title: 'Entalpía, H = U + PV',
+    def: <>No es “energía extra almacenada”: <i>PV</i> es un término de definición elegido para que, a <i>P</i> constante y sin trabajo extra, Δ<i>H</i> = <i>q<sub>P</sub></i>. El calor que medís a presión constante ya descontó el trabajo de expansión contra el entorno.</>,
+    nat: <><i>S</i>, <i>P</i></>,
+    diff: <>d<i>H</i> = <i>T</i> d<i>S</i> + <i>V</i> d<i>P</i></>,
+    use: <>Calorimetría a presión constante; Δ<i>H</i> − Δ<i>U</i> = Δ(<i>PV</i>) ≈ Δ<i>n</i><sub>gas</sub><i>RT</i> si solo los gases cambian apreciablemente de volumen.</>,
+    trap: <>Usar Δ<i>H</i> = <i>q</i> cuando hay trabajo eléctrico (una pila) o la presión no es constante. Además, el Cap. 3 de Analítica llama a <i>H</i> “una medida de la energía interna”: es una simplificación; difieren en Δ(<i>PV</i>).</>
+  },
+  A: {
+    color: 'var(--ink)', title: 'Energía de Helmholtz, A = U − TS',
+    def: <>En un proceso isotérmico, −Δ<i>A</i> es el trabajo <em>total</em> máximo (incluido el de expansión) que el sistema puede entregar, y se alcanza por el camino reversible. A <i>T</i> y <i>V</i> constantes, sin trabajo extra, d<i>A</i> ≤ 0: en el equilibrio <i>A</i> es mínima.</>,
+    nat: <><i>T</i>, <i>V</i></>,
+    diff: <>d<i>A</i> = −<i>S</i> d<i>T</i> − <i>P</i> d<i>V</i></>,
+    use: <>Sistemas a volumen fijo (recipientes rígidos), y la base de la termodinámica estadística.</>,
+    trap: <>Usar d<i>A</i> ≤ 0 como criterio sin verificar que <i>T</i> y <i>V</i> sean constantes.</>
+  },
+  G: {
+    color: 'var(--ink)', title: 'Energía de Gibbs, G = H − TS',
+    def: <>A <i>T</i> y <i>P</i> constantes, −Δ<i>G</i> es el trabajo máximo <em>distinto</em> del de expansión (<i>w</i>*: eléctrico, osmótico, contracción muscular). Si <i>w</i>* = 0, d<i>G</i><sub><i>T,P</i></sub> ≤ 0 y Δ<i>G</i><sub><i>T,P</i></sub> = −<i>T</i>Δ<i>S</i><sub>u</sub> (Seminario 5, problema 5.1).</>,
+    nat: <><i>T</i>, <i>P</i></>,
+    diff: <>d<i>G</i> = −<i>S</i> d<i>T</i> + <i>V</i> d<i>P</i> + Σ μ<sub><i>i</i></sub> d<i>n<sub>i</sub></i></>,
+    use: <>Equilibrio químico y de fases en laboratorio y en sistemas biológicos (condiciones de <i>T</i> y <i>P</i> fijas). Δ<sub>r</sub><i>G</i>° = −<i>RT</i> ln <i>K</i>.</>,
+    trap: <>Aplicar el signo de Δ<i>G</i> a procesos donde <i>P</i> no se mantiene constante, como la expansión libre (Seminario 5, problema 5.3c).</>
+  },
+  TS: {
+    color: 'var(--ts)', title: 'El término TS',
+    def: <>Producto de la temperatura por la entropía absoluta (fijada por el tercer principio). En un camino reversible e isotérmico el sistema intercambia con el baño <i>q</i><sub>rev</sub> = <i>T</i>Δ<i>S</i>: esa parte de Δ<i>U</i> entra o sale como calor, no como trabajo. Por eso se “resta” en <i>A</i> y <i>G</i>.</>,
+    nat: null, diff: <>Δ<i>S</i> = ∫ δ<i>q</i><sub>rev</sub> / <i>T</i></>,
+    use: <>Explica por qué un proceso endotérmico puede ser espontáneo: si Δ<i>S</i> es grande, −<i>T</i>Δ<i>S</i> domina.</>,
+    trap: <>Leer <i>TS</i> como “energía perdida” o <i>S</i> como “desorden”. La definición operativa es la de Clausius.</>
+  },
+  PV: {
+    color: 'var(--pv)', title: 'El término PV',
+    def: <>Producto de la presión y el volumen del sistema. Para 1 mol de gas ideal a 298 K, <i>PV</i> = <i>RT</i> ≈ 2,48 kJ; para 1 mol de agua líquida a 1 bar, <i>PV</i> ≈ 1,8 J. En el diagrama está exagerado para que se vea.</>,
+    nat: null, diff: <>d(<i>PV</i>) = <i>P</i> d<i>V</i> + <i>V</i> d<i>P</i></>,
+    use: <>Pasar de <i>U</i> a <i>H</i> (o de <i>A</i> a <i>G</i>) cambia la variable natural <i>V</i> por <i>P</i>: es una transformada de Legendre.</>,
+    trap: <>Creer que Δ<i>H</i> y Δ<i>U</i> difieren mucho en reacciones entre fases condensadas.</>
+  }
+};
+
+function Escalera() {
+  const [U, setU] = useState(260), [P, setP] = useState(2.4), [V, setV] = useState(15);
+  const [T, setT] = useState(300), [S, setS] = useState(0.3);
+  const [sel, setSel] = useState('G');
+  const PV = P * V, TS = T * S, k = 0.42;
+  const tU = useTween(U * k), tPV = useTween(PV * k), tTS = useTween(TS * k);
+  const vals = { U: U, H: U + PV, A: U - TS, G: U + PV - TS };
+  const cols = [
+    { key: 'U', parts: [{ h: tU, c: 'var(--u)', k: 'U' }], ghost: 0 },
+    { key: 'H', parts: [{ h: tU, c: 'var(--u)', k: 'U' }, { h: tPV, c: 'var(--pv)', k: 'PV' }], ghost: 0 },
+    { key: 'A', parts: [{ h: tU - tTS, c: 'var(--u)', k: 'U' }], ghost: tTS },
+    { key: 'G', parts: [{ h: tU - tTS, c: 'var(--u)', k: 'U' }, { h: tPV, c: 'var(--pv)', k: 'PV' }], ghost: tTS },
+  ];
+  const sp = 64, W = 40, D = 40, Y0 = 16;
+  const info = INFO[sel];
+  return (
+    <section>
+      <h2>Cuatro columnas, una misma energía</h2>
+      <p className="muted">Cada columna parte de <i>U</i> y le suma <i>PV</i>, le resta <i>TS</i>, o ambas cosas. Tocá cualquier bloque para ver qué significa.</p>
+      <div className="grid2">
+        <div className="stage">
+          <svg viewBox="-95 -215 330 400" role="img" aria-label="Diagrama isométrico de U, H, A y G como columnas apiladas">
+            <Defs />
+            <Box x={-14} y={0} z={-10} w={3 * sp + W + 28} d={D + 32} h={10} color="var(--floor)" />
+            {cols.map((c, i) => {
+              const x = i * sp; let z = 0;
+              const blocks = c.parts.map((p, j) => {
+                const el = <Box key={j} x={x} y={Y0} z={z} w={W} d={D} h={p.h} color={p.c}
+                  onClick={() => setSel(p.k === 'U' && c.key !== 'U' ? c.key : p.k)} label={`Bloque ${p.k} de la columna ${c.key}`} />;
+                z += p.h; return el;
+              });
+              const solidTop = z;
+              const ghost = c.ghost > 0 ? <Box x={x} y={Y0} z={solidTop} w={W} d={D} h={c.ghost} color="var(--ts)" ghost onClick={() => setSel('TS')} label="Término TS restado" /> : null;
+              const topZ = solidTop + c.ghost;
+              const [lx, ly] = iso(x + W / 2, Y0 + D / 2, topZ);
+              const [gx, gy] = iso(x + W, Y0, solidTop + c.ghost / 2);
+              const [fx, fy] = iso(x + W / 2, Y0 + D / 2, 0);
+              return (
+                <g key={c.key}>
+                  {sel === c.key && <ellipse cx={fx} cy={fy + 2} rx="34" ry="17" fill="none" style={{ stroke: 'var(--ink)' }} strokeWidth="1.5" strokeDasharray="3 3" className="pulse" />}
+                  {blocks}{ghost}
+                  {c.ghost > 0 && <text x={gx + 4} y={gy + 4} fontSize="10" fontWeight="700" style={{ fill: 'var(--ts)' }}>−TS</text>}
+                  <g className="clickable" onClick={() => setSel(c.key)}>
+                    <text x={lx} y={ly - 22} textAnchor="middle" fontSize="20" fontWeight="800" style={{ fill: 'var(--ink)' }}>{c.key}</text>
+                    <text x={lx} y={ly - 9} textAnchor="middle" fontSize="9.5" style={{ fill: 'var(--ink2)' }}>{fmt(vals[c.key])} u.a.</text>
+                  </g>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+        <div className="panel" style={{ '--accent': info.color }}>
+          <h3>{info.title}</h3>
+          <p>{info.def}</p>
+          <dl className="kv">
+            {info.nat && <><dt>Variables naturales</dt><dd>{info.nat}</dd></>}
+            <dt>Diferencial</dt><dd><span className="eq">{info.diff}</span></dd>
+            <dt>Para qué sirve</dt><dd>{info.use}</dd>
+            <dt>Error típico</dt><dd>{info.trap}</dd>
+          </dl>
+        </div>
+      </div>
+
+      <p className="predict"><b>Predecí antes de mover:</b> si subís <i>T</i> con <i>S</i> fija, ¿qué columnas cambian y cuáles no? ¿Y si subís <i>P</i>? Anotalo y después verificá con los controles.</p>
+      <div className="stage" style={{ padding: '12px 16px' }}>
+        {[['Energía U', U, setU, 220, 320, 1, ''], ['Presión P', P, setP, 0.5, 4, 0.1, ''], ['Volumen V', V, setV, 5, 20, 0.5, ''],
+          ['Temperatura T', T, setT, 100, 400, 5, ' K'], ['Entropía S', S, setS, 0.1, 0.4, 0.01, '']].map(([lab, v, set, mn, mx, st, u]) => (
+          <div className="ctrl" key={lab}>
+            <label htmlFor={lab}>{lab}</label>
+            <input id={lab} type="range" min={mn} max={mx} step={st} value={v} onChange={e => set(parseFloat(e.target.value))} />
+            <output>{fmt(v, st < 1 ? (st < 0.1 ? 2 : 1) : 0)}{u}</output>
+          </div>
+        ))}
+        <p className="muted" style={{ fontSize: 14, margin: '6px 0 0' }}>Escala ilustrativa en unidades arbitrarias: <i>PV</i> = {fmt(PV)} u.a., <i>TS</i> = {fmt(TS)} u.a. El valor absoluto de <i>U</i> no es medible; lo que tiene sentido son las diferencias entre columnas y los cambios Δ.</p>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- 2. Entropía: tres caminos, mismo ΔS del sistema ---------- */
+function Entropia() {
+  const R = 8.314, Tb = 298.15;
+  const [r, setR] = useState(4);
+  const [mode, setMode] = useState('rev');
+  const [phase, setPhase] = useState('idle');
+  const [prog, setProg] = useState(0);
+  const Lmax = 190, L1 = Lmax / r;
+  useEffect(() => { setPhase('idle'); setProg(0); }, [r, mode]);
+  useEffect(() => {
+    if (phase !== 'running') return;
+    const dur = REDUCED ? 1 : (mode === 'rev' ? 3200 : mode === 'irr' ? 1100 : 380);
+    const t0 = performance.now(); let raf;
+    const step = (t) => {
+      const p = Math.min(1, (t - t0) / dur);
+      const e = mode === 'rev' ? p : 1 - Math.pow(1 - p, 2.2);
+      setProg(e);
+      if (p < 1) raf = requestAnimationFrame(step); else setPhase('done');
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [phase]);
+
+  const dSsys = R * Math.log(r);
+  const q = mode === 'rev' ? R * Tb * Math.log(r) : mode === 'irr' ? R * Tb * (1 - 1 / r) : 0;
+  const dSsur = -q / Tb, dSu = dSsys + dSsur;
+  const len = L1 + (Lmax - L1) * prog;
+  const parts = useMemo(() => Array.from({ length: 22 }, (_, i) => ({ fx: Math.random(), fy: Math.random(), fz: Math.random(), dl: (i * 0.13) % 1.3 })), []);
+  const arrowsN = mode === 'free' ? 0 : Math.max(1, Math.round(6 * q / (R * Tb * Math.log(10))));
+  const done = phase === 'done';
+  const maxS = R * Math.log(10);
+  const bar = (v, col) => {
+    const f = Math.min(1, Math.abs(v) / maxS) * 50;
+    return <div className="fill" style={{ background: col, left: v >= 0 ? '50%' : `${50 - f}%`, width: `${f}%` }} />;
+  };
+  const MODES = { rev: 'Reversible', irr: 'Contra Pext = P₂ constante', free: 'Expansión libre (al vacío)' };
+
+  return (
+    <section>
+      <h2>Entropía: el camino cambia, el estado final no</h2>
+      <p className="muted">1 mol de gas ideal se expande isotérmicamente de <i>V</i>₁ a <i>V</i>₂ en contacto con un baño a 298 K. Elegí el camino y ejecutalo.</p>
+      <p className="predict"><b>Antes de ejecutar:</b> ¿Δ<i>S</i> del sistema depende del camino? ¿Y Δ<i>S</i> del entorno? Escribí tu predicción para los tres casos.</p>
+      <div className="chips" role="group" aria-label="Camino">
+        {Object.entries(MODES).map(([k, l]) => <button key={k} className="chip" aria-pressed={mode === k} onClick={() => setMode(k)}>{l}</button>)}
+      </div>
+      <div className="ctrl" style={{ maxWidth: 520 }}>
+        <label htmlFor="ratio">V₂ / V₁</label>
+        <input id="ratio" type="range" min="1.5" max="10" step="0.1" value={r} onChange={e => setR(parseFloat(e.target.value))} />
+        <output>{fmt(r, 1)}</output>
+      </div>
+      <div className="stage">
+        <svg viewBox="-50 -70 260 210" role="img" aria-label="Cilindro isométrico con pistón sobre un baño térmico">
+          <Defs />
+          <Box x={-6} y={0} z={-14} w={Lmax + 26} d={58} h={14} color="var(--heat)" opacity={mode === 'free' ? 0.35 : 0.9} />
+          <Box x={4} y={10} z={0} w={Lmax + 6} d={38} h={40} color="var(--ink2)" glass />
+          <Box x={6} y={12} z={1} w={len} d={34} h={36} color="var(--gas)" glass />
+          {parts.map((p, i) => {
+            const [px, py] = iso(8 + p.fx * (len - 4), 14 + p.fy * 30, 4 + p.fz * 30);
+            return <circle key={i} cx={px} cy={py} r="1.8" className="jig" style={{ fill: 'var(--gas)', animationDelay: `${p.dl}s`, transformBox: 'fill-box' }} />;
+          })}
+          {mode !== 'free'
+            ? <><Box x={6 + len} y={12} z={1} w={6} d={34} h={36} color="var(--ink2)" />
+                <Box x={12 + len} y={27} z={17} w={Lmax - len + 30} d={4} h={4} color="var(--ink2)" /></>
+            : (prog < 0.02 && <Box x={6 + L1} y={12} z={1} w={2} d={34} h={36} color="var(--ink2)" />)}
+          {phase === 'running' && Array.from({ length: arrowsN }).map((_, i) => {
+            const x = 20 + i * ((len - 20) / Math.max(1, arrowsN));
+            const a = iso(x, 30, -11), b = iso(x, 30, 22);
+            return <line key={i} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} style={{ stroke: 'var(--heat)' }} strokeWidth="2.2" className="dash" markerEnd="url(#arrH)" />;
+          })}
+          {(() => { const [tx, ty] = iso(Lmax + 20, 58, -14); return <text x={tx - 6} y={ty + 14} fontSize="9" textAnchor="end" style={{ fill: 'var(--ink2)' }}>baño térmico, 298 K</text>; })()}
+          {mode === 'free' && (() => { const [tx, ty] = iso(Lmax, 10, 44); return <text x={tx} y={ty} fontSize="9" textAnchor="end" style={{ fill: 'var(--ink2)' }}>paredes rígidas, vacío a la derecha</text>; })()}
+        </svg>
+      </div>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <button className="btn" onClick={() => { setProg(0); setPhase('running'); }} disabled={phase === 'running'}>{done ? 'Repetir' : 'Ejecutar'} {MODES[mode].toLowerCase()}</button>
+      </div>
+
+      <div className="panel bars" style={{ marginTop: 14, '--accent': 'var(--ts)' }}>
+        <h3>Balance de entropía (J/K)</h3>
+        {!done && <p className="muted">Ejecutá el proceso para ver el balance.</p>}
+        {done && <>
+          {[['Δ𝑆 sistema', dSsys, 'var(--gas)'], ['Δ𝑆 entorno', dSsur, 'var(--heat)'], ['Δ𝑆 universo', dSu, 'var(--ts)']].map(([l, v, c]) => (
+            <div className="row" key={l}><span>{l}</span><div className="track"><div className="zero" />{bar(v, c)}</div><output>{fmt(v, 2)}</output></div>
+          ))}
+          <p style={{ fontSize: 15.5 }}><i>q</i> absorbido = {fmt(q, 0)} J. Desigualdad de Clausius: Δ<i>S</i><sub>sis</sub> = {fmt(dSsys, 2)} {Math.abs(dSu) < 1e-9 ? '=' : '>'} <i>q</i>/<i>T</i> = {fmt(q / Tb, 2)} J/K.</p>
+          <p style={{ fontSize: 15.5 }}>{mode === 'rev'
+            ? 'Camino reversible: el universo no cambia su entropía. Es el límite ideal, no un proceso real.'
+            : 'Mismo ΔS del sistema que en el camino reversible: S es función de estado. Lo que cambia es cuánto calor cedió el entorno, y por eso ΔS universo > 0.'}</p>
+        </>}
+      </div>
+
+      <div className="panel" style={{ marginTop: 14 }}>
+        <h3>De dónde sale nR ln(V₂/V₁)</h3>
+        <p>Para calcular Δ<i>S</i> siempre elegís un camino <em>reversible</em> entre los mismos estados, aunque el proceso real no lo sea: <span className="eq">Δ<i>S</i> = ∫ δ<i>q</i><sub>rev</sub>/<i>T</i></span>. Isotérmico y gas ideal ⇒ Δ<i>U</i> = 0 ⇒ <i>q</i><sub>rev</sub> = −<i>w</i><sub>rev</sub> = <i>nRT</i> ln(<i>V</i>₂/<i>V</i>₁). Como <i>T</i> es constante sale de la integral: <span className="eq">Δ<i>S</i> = <i>nR</i> ln(<i>V</i>₂/<i>V</i>₁)</span>.</p>
+        <p className="muted" style={{ fontSize: 15 }}><b>Profundización opcional (no figura en el programa):</b> con <i>S</i> = <i>k</i> ln <i>W</i>, el número de microestados accesibles para cada molécula crece proporcional a <i>V</i>, y se obtiene el mismo resultado. Es una interpretación estadística, no la definición que usa la cátedra.</p>
+      </div>
+      <div className="note"><b>Choque de enfoques:</b> el Cap. 3 de Analítica y el Harris describen la entropía como “desorden”. En Fisicoquímica trabajás con la definición de Clausius y la desigualdad d<i>S</i> ≥ δ<i>q</i>/<i>T</i>. Si en un parcial de FQ justificás con “desorden”, te van a pedir más.</div>
+    </section>
+  );
+}
+
+/* ---------- 3. Espontaneidad ---------- */
+const STEPS = {
+  iso: {
+    title: 'Sistema aislado', crit: <>d<i>S</i><sub>u</sub> = d<i>S</i><sub>sis</sub> ≥ 0</>,
+    steps: [
+      [<>¿Qué valen <i>q</i> y <i>w</i> para un sistema aislado? ¿Cambia el entorno?</>, <><i>q</i> = 0 y <i>w</i> = 0. El entorno no intercambia nada, así que d<i>S</i><sub>ent</sub> = 0.</>],
+      [<>Aplicá la desigualdad de Clausius, d<i>S</i> ≥ δ<i>q</i>/<i>T</i>.</>, <>Con δ<i>q</i> = 0 queda d<i>S</i><sub>sis</sub> ≥ 0: la entropía crece hasta un máximo, que es el estado de equilibrio.</>],
+    ]
+  },
+  tv: {
+    title: 'T y V constantes', crit: <>d<i>A</i><sub><i>T,V</i></sub> = −<i>T</i> d<i>S</i><sub>u</sub> ≤ 0</>,
+    steps: [
+      [<>Si el entorno es un baño térmico a <i>T</i>, ¿cuánto vale d<i>S</i><sub>ent</sub>?</>, <>d<i>S</i><sub>ent</sub> = −δ<i>q</i>/<i>T</i>. El baño recibe −δ<i>q</i> sin cambiar su temperatura: para él el intercambio es reversible.</>],
+      [<>Con <i>V</i> constante y sin trabajo extra (<i>w</i>* = 0), ¿a qué es igual δ<i>q</i>?</>, <>δ<i>w</i> = −<i>P</i><sub>ext</sub> d<i>V</i> = 0, entonces por el primer principio δ<i>q</i> = d<i>U</i>.</>],
+      [<>Combiná en d<i>S</i><sub>u</sub> = d<i>S</i> + d<i>S</i><sub>ent</sub> ≥ 0.</>, <>d<i>S</i> − d<i>U</i>/<i>T</i> ≥ 0, es decir <i>T</i> d<i>S</i> − d<i>U</i> ≥ 0.</>],
+      [<>¿Qué función de estado aparece si <i>T</i> es constante?</>, <>A <i>T</i> constante, <i>T</i> d<i>S</i> = d(<i>TS</i>), así que −d(<i>U</i> − <i>TS</i>) ≥ 0 ⇒ d<i>A</i> ≤ 0. <i>A</i> es la entropía del universo “disfrazada” con variables del sistema.</>],
+    ]
+  },
+  tp: {
+    title: 'T y P constantes', crit: <>d<i>G</i><sub><i>T,P</i></sub> = −<i>T</i> d<i>S</i><sub>u</sub> ≤ 0</>,
+    steps: [
+      [<>Mismo baño a <i>T</i>: ¿d<i>S</i><sub>ent</sub>?</>, <>d<i>S</i><sub>ent</sub> = −δ<i>q</i>/<i>T</i>.</>],
+      [<>Con <i>P</i> = <i>P</i><sub>ext</sub> constante y <i>w</i>* = 0, ¿a qué es igual δ<i>q</i>?</>, <>d<i>U</i> = δ<i>q</i> − <i>P</i> d<i>V</i> ⇒ δ<i>q</i> = d<i>U</i> + <i>P</i> d<i>V</i> = d<i>H</i> (a <i>P</i> constante).</>],
+      [<>Combiná.</>, <><i>T</i> d<i>S</i> − d<i>H</i> ≥ 0.</>],
+      [<>Con <i>T</i> y <i>P</i> constantes…</>, <>−d(<i>H</i> − <i>TS</i>) ≥ 0 ⇒ d<i>G</i><sub><i>T,P</i></sub> ≤ 0, y Δ<i>G</i><sub><i>T,P</i></sub> = −<i>T</i>Δ<i>S</i><sub>u</sub> (Seminario 5, problema 5.1).</>],
+    ]
+  }
+};
+
+function Escena({ sc }) {
+  const L = 90, Dd = 70;
+  return (
+    <svg viewBox="-80 -95 200 175" role="img" aria-label={`Escena: ${STEPS[sc].title}`}>
+      <Defs />
+      <Box x={-10} y={-10} z={-12} w={L + 20} d={Dd + 20} h={12} color={sc === 'iso' ? 'var(--floor)' : 'var(--heat)'} />
+      {sc === 'iso' && <Box x={-6} y={-6} z={0} w={L + 12} d={Dd + 12} h={62} color="var(--ink2)" ghost />}
+      <Box x={0} y={0} z={0} w={L} d={Dd} h={sc === 'tp' ? 44 : 50} color="var(--gas)" glass />
+      {sc === 'tv' && <Box x={0} y={0} z={50} w={L} d={Dd} h={5} color="var(--ink2)" />}
+      {sc === 'tp' && <g className="bob"><Box x={0} y={0} z={44} w={L} d={Dd} h={5} color="var(--ink2)" /><Box x={30} y={25} z={49} w={30} d={20} h={16} color="var(--ink)" /></g>}
+      {sc !== 'iso' && [20, 45, 70].map(x => { const a = iso(x, 35, -9), b = iso(x, 35, 18); return <line key={x} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} style={{ stroke: 'var(--heat)' }} strokeWidth="2.2" className="dash" markerEnd="url(#arrH)" />; })}
+      {(() => { const [tx, ty] = iso(L + 10, Dd + 10, -12); return <text x={tx - 70} y={ty + 16} fontSize="9" style={{ fill: 'var(--ink2)' }}>{sc === 'iso' ? 'paredes adiabáticas y rígidas' : sc === 'tv' ? 'baño a T, tapa rígida' : 'baño a T, pistón con Pext fija'}</text>; })()}
+    </svg>
+  );
+}
+
+function GxiPlot() {
+  const RT = 8.314 * 298.15 / 1000;
+  const [dG0, setDG0] = useState(-3);
+  const [xi, setXi] = useState(0.2);
+  const K = Math.exp(-dG0 / RT), xeq = K / (1 + K);
+  const G = (x) => x * dG0 + RT * (x * Math.log(x) + (1 - x) * Math.log(1 - x));
+  const xs = Array.from({ length: 99 }, (_, i) => (i + 1) / 100);
+  const ys = xs.map(G); const ymin = Math.min(...ys), ymax = Math.max(...ys);
+  const W = 300, H = 170, px = (x) => 30 + x * (W - 40), py = (y) => 12 + (ymax - y) / (ymax - ymin || 1) * (H - 30);
+  const d = xs.map((x, i) => `${i ? 'L' : 'M'}${px(x).toFixed(1)},${py(ys[i]).toFixed(1)}`).join(' ');
+  const slope = dG0 + RT * Math.log(xi / (1 - xi));
+  const dx = 0.12, x0 = Math.max(0.01, xi - dx), x1 = Math.min(0.99, xi + dx);
+  const Q = xi / (1 - xi);
+  return (
+    <div className="panel" style={{ marginTop: 14, '--accent': 'var(--ink)' }}>
+      <h3>G en función del grado de avance, ξ</h3>
+      <p style={{ fontSize: 15.5 }}>Reacción A ⇌ B en solución ideal, a 298 K. La pendiente de la curva es Δ<sub>r</sub><i>G</i> = (∂<i>G</i>/∂ξ)<sub><i>T,P</i></sub> = Δ<sub>r</sub><i>G</i>° + <i>RT</i> ln <i>Q</i>.</p>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Curva de G versus grado de avance con recta tangente">
+        <line x1="30" y1={H - 18} x2={W - 10} y2={H - 18} style={{ stroke: 'var(--line)' }} />
+        <path d={d} fill="none" style={{ stroke: 'var(--ink)' }} strokeWidth="2.2" />
+        <line x1={px(x0)} y1={py(G(xi) + slope * (x0 - xi))} x2={px(x1)} y2={py(G(xi) + slope * (x1 - xi))} style={{ stroke: 'var(--pv)' }} strokeWidth="2" />
+        <line x1={px(xeq)} y1={py(G(xeq))} x2={px(xeq)} y2={H - 18} style={{ stroke: 'var(--ok)' }} strokeDasharray="3 3" />
+        <circle cx={px(xi)} cy={py(G(xi))} r="5" style={{ fill: 'var(--pv)' }} />
+        <text x={px(xeq)} y={H - 5} textAnchor="middle" fontSize="10" style={{ fill: 'var(--ok)' }}>ξ eq</text>
+        <text x="30" y={H - 5} fontSize="10" style={{ fill: 'var(--ink2)' }}>solo A</text>
+        <text x={W - 10} y={H - 5} fontSize="10" textAnchor="end" style={{ fill: 'var(--ink2)' }}>solo B</text>
+      </svg>
+      <div className="ctrl"><label htmlFor="g0">Δ<sub>r</sub>G° (kJ/mol)</label><input id="g0" type="range" min="-12" max="12" step="0.5" value={dG0} onChange={e => setDG0(parseFloat(e.target.value))} /><output>{fmt(dG0, 1)}</output></div>
+      <div className="ctrl"><label htmlFor="xi">ξ</label><input id="xi" type="range" min="0.01" max="0.99" step="0.01" value={xi} onChange={e => setXi(parseFloat(e.target.value))} /><output>{fmt(xi, 2)}</output></div>
+      <p style={{ fontSize: 15.5 }}><i>Q</i> = {fmt(Q, 3)}, <i>K</i> = {fmt(K, 3)}, Δ<sub>r</sub><i>G</i> = <b>{fmt(slope, 2)} kJ/mol</b>: {Math.abs(slope) < 0.15 ? 'prácticamente en equilibrio (Q ≈ K).' : slope < 0 ? 'Q < K, la reacción avanza hacia B.' : 'Q > K, la reacción retrocede hacia A.'}</p>
+      <p className="muted" style={{ fontSize: 15 }}>Fijate que el mínimo nunca está en un extremo: el término de mezcla <i>RT</i>[ξ ln ξ + (1−ξ) ln(1−ξ)] tiene pendiente infinita en ξ → 0 y ξ → 1. Esto conecta con <i>Q</i> y <i>K</i> del Cap. 3 de Analítica.</p>
+    </div>
+  );
+}
+
+function Espontaneidad() {
+  const [sc, setSc] = useState('tp');
+  const [shown, setShown] = useState(0);
+  useEffect(() => setShown(0), [sc]);
+  const S = STEPS[sc];
+  return (
+    <section>
+      <h2>Por qué A y G son criterios de espontaneidad</h2>
+      <p className="muted">El criterio universal es Δ<i>S</i><sub>u</sub> ≥ 0. <i>A</i> y <i>G</i> son la misma condición reescrita con variables del sistema, válida solo bajo ciertas restricciones. Deducilo vos: leé la pregunta, respondé en tu cabeza o en papel, y recién después revelá.</p>
+      <div className="chips" role="group" aria-label="Condiciones">
+        {Object.entries(STEPS).map(([k, v]) => <button key={k} className="chip" aria-pressed={sc === k} onClick={() => setSc(k)}>{v.title}</button>)}
+      </div>
+      <div className="grid2">
+        <div className="stage"><Escena sc={sc} /></div>
+        <div className="panel">
+          <h3>{S.title}</h3>
+          {S.steps.map(([q, a], i) => i <= shown && (
+            <div className="step" key={sc + i}>
+              <div className="q">{q}</div>
+              {i < shown ? <div className="a">{a}</div>
+                : <button className="btn ghost" style={{ marginTop: 6 }} onClick={() => setShown(shown + 1)}>Revelar este paso</button>}
+            </div>
+          ))}
+          {shown >= S.steps.length && <p className="step"><b>Criterio:</b> <span className="eq">{S.crit}</span></p>}
+        </div>
+      </div>
+      {sc === 'tp' && <GxiPlot />}
+    </section>
+  );
+}
+
+/* ---------- 4. Ecuaciones ---------- */
+const CARDS = [
+  { k: 'U', c: 'var(--u)', nat: <><i>S</i>, <i>V</i></>, fund: <>d<i>U</i> = <i>T</i>d<i>S</i> − <i>P</i>d<i>V</i></>,
+    der: <><i>T</i> = (∂<i>U</i>/∂<i>S</i>)<sub><i>V</i></sub>, −<i>P</i> = (∂<i>U</i>/∂<i>V</i>)<sub><i>S</i></sub></>,
+    max: <>(∂<i>T</i>/∂<i>V</i>)<sub><i>S</i></sub> = −(∂<i>P</i>/∂<i>S</i>)<sub><i>V</i></sub></> },
+  { k: 'H', c: 'var(--pv)', nat: <><i>S</i>, <i>P</i></>, fund: <>d<i>H</i> = <i>T</i>d<i>S</i> + <i>V</i>d<i>P</i></>,
+    der: <><i>T</i> = (∂<i>H</i>/∂<i>S</i>)<sub><i>P</i></sub>, <i>V</i> = (∂<i>H</i>/∂<i>P</i>)<sub><i>S</i></sub></>,
+    max: <>(∂<i>T</i>/∂<i>P</i>)<sub><i>S</i></sub> = (∂<i>V</i>/∂<i>S</i>)<sub><i>P</i></sub></> },
+  { k: 'A', c: 'var(--ts)', nat: <><i>T</i>, <i>V</i></>, fund: <>d<i>A</i> = −<i>S</i>d<i>T</i> − <i>P</i>d<i>V</i></>,
+    der: <>−<i>S</i> = (∂<i>A</i>/∂<i>T</i>)<sub><i>V</i></sub>, −<i>P</i> = (∂<i>A</i>/∂<i>V</i>)<sub><i>T</i></sub></>,
+    max: <>(∂<i>S</i>/∂<i>V</i>)<sub><i>T</i></sub> = (∂<i>P</i>/∂<i>T</i>)<sub><i>V</i></sub></> },
+  { k: 'G', c: 'var(--ink)', nat: <><i>T</i>, <i>P</i></>, fund: <>d<i>G</i> = −<i>S</i>d<i>T</i> + <i>V</i>d<i>P</i></>,
+    der: <>−<i>S</i> = (∂<i>G</i>/∂<i>T</i>)<sub><i>P</i></sub>, <i>V</i> = (∂<i>G</i>/∂<i>P</i>)<sub><i>T</i></sub></>,
+    max: <>(∂<i>S</i>/∂<i>P</i>)<sub><i>T</i></sub> = −(∂<i>V</i>/∂<i>T</i>)<sub><i>P</i></sub></> },
+];
+
+function MiniCube({ c }) {
+  return <svg viewBox="-30 -42 60 64" width="44" height="46" aria-hidden="true"><Box x={-14} y={-14} z={0} w={24} d={24} h={22} color={c} /></svg>;
+}
+
+function Ecuaciones() {
+  return (
+    <section>
+      <h2>Ecuaciones fundamentales y relaciones de Maxwell</h2>
+      <p className="muted">Cada potencial es “natural” en dos variables: si lo conocés en función de ellas, obtenés todas las demás propiedades derivando. Las relaciones de Maxwell salen de que las derivadas cruzadas de una función de estado son iguales (criterio de Euler).</p>
+      <div className="cards">
+        {CARDS.map(c => (
+          <div className="panel" key={c.k} style={{ '--accent': c.c }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><MiniCube c={c.c} /><h3 style={{ margin: 0 }}>{c.k}({c.nat})</h3></div>
+            <p><span className="eq">{c.fund}</span></p>
+            <p style={{ fontSize: 15.5 }}>{c.der}</p>
+            <p style={{ fontSize: 15.5 }}><b>Maxwell:</b> {c.max}</p>
+          </div>
+        ))}
+      </div>
+      <div className="panel" style={{ marginTop: 14, '--accent': 'var(--pv)' }}>
+        <h3>Cómo se pasa de una a otra</h3>
+        <p>Restar <i>TS</i> cambia la variable natural <i>S</i> por <i>T</i>; sumar <i>PV</i> cambia <i>V</i> por <i>P</i>. Ejemplo: d<i>A</i> = d<i>U</i> − <i>T</i>d<i>S</i> − <i>S</i>d<i>T</i> = (<i>T</i>d<i>S</i> − <i>P</i>d<i>V</i>) − <i>T</i>d<i>S</i> − <i>S</i>d<i>T</i> = −<i>S</i>d<i>T</i> − <i>P</i>d<i>V</i>. Probá vos con <i>G</i> = <i>A</i> + <i>PV</i>.</p>
+        <p><b>Gibbs–Helmholtz:</b> <span className="eq">[∂(<i>G</i>/<i>T</i>)/∂<i>T</i>]<sub><i>P</i></sub> = −<i>H</i>/<i>T</i>²</span> (Seminario 5, problema 5.5).</p>
+        <p><b>Potencial químico:</b> <span className="eq">μ<sub><i>i</i></sub> = (∂<i>G</i>/∂<i>n<sub>i</sub></i>)<sub><i>T,P,n<sub>j</sub></i></sub></span>, y también (∂<i>U</i>/∂<i>n<sub>i</sub></i>)<sub><i>S,V</i></sub>, (∂<i>H</i>/∂<i>n<sub>i</sub></i>)<sub><i>S,P</i></sub>, (∂<i>A</i>/∂<i>n<sub>i</sub></i>)<sub><i>T,V</i></sub> (Unidad 4 del programa).</p>
+      </div>
+      <div className="note"><b>Condiciones de validez:</b> las cuatro ecuaciones fundamentales, tal como están escritas, valen para un sistema cerrado, de composición constante y con solo trabajo <i>PV</i>. Como relacionan funciones de estado, valen para cualquier proceso entre estados de equilibrio, reversible o no; lo que solo vale en el camino reversible es identificar <i>T</i>d<i>S</i> con δ<i>q</i> y −<i>P</i>d<i>V</i> con δ<i>w</i>. Convención de signos: acá δ<i>w</i> es trabajo sobre el sistema; Castellan escribe d<i>U</i> = đ<i>Q</i> − đ<i>W</i> con <i>W</i> hecho por el sistema. Usá la de tu cátedra.</div>
+    </section>
+  );
+}
+
+/* ---------- 5. Autoevaluación ---------- */
+const QS = [
+  ['El agua sobreenfriada a −5 °C y 1 atm se congela espontáneamente, pero Δ𝑆 del sistema es negativo. ¿Cómo se explica?',
+   'El proceso es exotérmico: el entorno recibe calor y ΔS_ent = −q/T > 0. La suma ΔS_u = ΔS_sis + ΔS_ent resulta positiva. A T y P constantes es equivalente a ΔG < 0. Para calcular ΔS_sis se usa un camino reversible (calentar a 0 °C, congelar, enfriar a −5 °C). Seminario 5, problema 5.6.'],
+  ['Para la expansión libre isotérmica de un gas ideal de 10 a 1 atm se obtiene ΔG < 0. ¿Podés concluir que es espontánea por el signo de ΔG?',
+   'No por ese argumento. ΔG sí está definido (es función de estado: ΔG = nRT ln(P₂/P₁)), pero el criterio ΔG ≤ 0 exige T y P constantes durante el proceso, y acá P cambia. El criterio que vale es ΔS_u > 0 (ΔS_sis > 0 y ΔS_ent = 0). Seminario 5, problema 5.3c.'],
+  ['¿Por qué para una transformación entre sólidos y líquidos ΔA y ΔG son casi iguales, y en una reacción con gases no?',
+   'ΔG − ΔA = Δ(PV). Para fases condensadas el volumen molar es chico y casi no cambia, así que Δ(PV) ≈ 0. Con gases ideales, Δ(PV) = Δn_gas·RT, del orden de kJ/mol.'],
+  ['Explicá sin usar la palabra “desorden” por qué ΔS = nR ln(V₂/V₁) es el mismo para la expansión reversible y la libre.',
+   'S es función de estado: depende solo de los estados inicial y final, que son idénticos. Se calcula por el camino reversible con ΔS = q_rev/T = nR ln(V₂/V₁). En la expansión libre q = 0, pero eso solo dice que el entorno no cambia; la desigualdad de Clausius ΔS > q/T marca la irreversibilidad.'],
+  ['¿Qué significa físicamente −ΔG = w*_max? Dá un ejemplo biológico.',
+   'A T y P constantes, la disminución de G acota el trabajo distinto del de expansión que puede obtenerse (eléctrico, osmótico, mecánico). La igualdad solo vale en el camino reversible; en uno real se obtiene menos. Ejemplo: la hidrólisis de ATP en condiciones celulares fija el máximo trabajo para transporte activo contra gradiente o para la contracción muscular.'],
+  ['En el equilibrio a T y P constantes Δ_rG = 0, pero Δ_rG° ≠ 0. ¿Hay contradicción?',
+   'No. Δ_rG° se refiere a todos los componentes en su estado estándar (actividades unitarias). Δ_rG = Δ_rG° + RT ln Q depende de la composición. En el equilibrio Q = K y entonces Δ_rG° = −RT ln K. Es la pendiente de G(ξ) en el mínimo la que vale cero.'],
+];
+
+function Autoeval() {
+  const [ans, setAns] = useState(() => { try { return JSON.parse(localStorage.getItem('fq-auto') || '{}'); } catch (e) { return {}; } });
+  const [open, setOpen] = useState({});
+  useEffect(() => { try { localStorage.setItem('fq-auto', JSON.stringify(ans)); } catch (e) {} }, [ans]);
+  return (
+    <section>
+      <h2>Autoevaluación</h2>
+      <p className="muted">Escribí tu respuesta primero. La clave se habilita cuando escribiste al menos 25 caracteres. Tus respuestas quedan guardadas en este navegador.</p>
+      {QS.map(([q, k], i) => {
+        const a = ans[i] || '';
+        return (
+          <div className="panel" key={i} style={{ marginTop: 12, '--accent': open[i] ? 'var(--ok)' : 'var(--line)' }}>
+            <p style={{ marginTop: 0 }}><b>{i + 1}.</b> {q}</p>
+            <textarea aria-label={`Respuesta ${i + 1}`} value={a} onChange={e => setAns({ ...ans, [i]: e.target.value })} placeholder="Tu razonamiento…" />
+            <div style={{ marginTop: 8 }}>
+              <button className="btn ghost" disabled={a.trim().length < 25} onClick={() => setOpen({ ...open, [i]: !open[i] })}>{open[i] ? 'Ocultar la clave' : 'Comparar con la clave'}</button>
+            </div>
+            {open[i] && <div className="key">{k}</div>}
+          </div>
+        );
+      })}
+    </section>
+  );
+}
+
+/* ---------- App ---------- */
+const TABS = [['esc', 'U, H, A, G'], ['ent', 'Entropía'], ['esp', 'Espontaneidad'], ['ecu', 'Ecuaciones'], ['auto', 'Autoevaluación']];
+function App() {
+  const [tab, setTab] = useState('esc');
+  return (
+    <div className="wrap">
+      <header className="hero">
+        <h1><span className="sym sU">U</span><span className="sym sH">H</span><span className="sym sS">S</span><span className="sym sA">A</span><span className="sym sG">G</span><br />la energía vista en bloques</h1>
+        <p className="lede">Un modelo isométrico para entender de dónde sale cada potencial termodinámico, cuándo sirve como criterio de espontaneidad y qué hipótesis hay detrás. Fisicoquímica I, Unidades 2 y 3.</p>
+      </header>
+      <nav className="tabs" role="tablist">
+        {TABS.map(([k, l]) => <button key={k} role="tab" className="tab" aria-selected={tab === k} onClick={() => { setTab(k); window.scrollTo({ top: 0, behavior: REDUCED ? 'auto' : 'smooth' }); }}>{l}</button>)}
+      </nav>
+      {tab === 'esc' && <Escalera />}
+      {tab === 'ent' && <Entropia />}
+      {tab === 'esp' && <Espontaneidad />}
+      {tab === 'ecu' && <Ecuaciones />}
+      {tab === 'auto' && <Autoeval />}
+      <footer>Basado en el programa de Fisicoquímica (CiBEx), el Seminario 5 y el Cap. 3 de Química Analítica. Escalas del diagrama ilustrativas.</footer>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
